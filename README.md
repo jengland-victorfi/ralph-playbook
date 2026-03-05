@@ -271,10 +271,11 @@ _This enhancement uses two saved prompt files:_
 
 ```bash
 #!/bin/bash
-# Usage: ./loop.sh [plan] [max_iterations]
+# Usage: ./loop.sh [plan|build] [max_iterations]
 # Examples:
 #   ./loop.sh              # Build mode, unlimited tasks
 #   ./loop.sh 20           # Build mode, max 20 tasks
+#   ./loop.sh build 20     # Build mode, max 20 tasks
 #   ./loop.sh plan         # Plan mode, unlimited tasks
 #   ./loop.sh plan 5       # Plan mode, max 5 tasks
 
@@ -284,8 +285,13 @@ if [ "$1" = "plan" ]; then
     MODE="plan"
     PROMPT_FILE="PROMPT_plan.md"
     MAX_ITERATIONS=${2:-0}
+elif [ "$1" = "build" ]; then
+    # Explicit build mode (with optional max iterations)
+    MODE="build"
+    PROMPT_FILE="PROMPT_build.md"
+    MAX_ITERATIONS=${2:-0}
 elif [[ "$1" =~ ^[0-9]+$ ]]; then
-    # Build mode with max tasks
+    # Build mode with max tasks (bare number)
     MODE="build"
     PROMPT_FILE="PROMPT_build.md"
     MAX_ITERATIONS=$1
@@ -914,11 +920,12 @@ Extends the base enhanced loop script to add work branch support with scoped pla
 set -euo pipefail
 
 # Usage:
-#   ./loop.sh [plan] [max_iterations]       # Plan/build on current branch
+#   ./loop.sh [plan|build] [max_iterations]  # Plan/build on current branch
 #   ./loop.sh plan-work "work description"  # Create scoped plan on current branch
 # Examples:
 #   ./loop.sh                               # Build mode, unlimited
 #   ./loop.sh 20                            # Build mode, max 20
+#   ./loop.sh build 20                      # Build mode, max 20
 #   ./loop.sh plan 5                        # Full planning, max 5
 #   ./loop.sh plan-work "user auth"         # Scoped planning
 
@@ -930,6 +937,9 @@ if [ "$1" = "plan" ]; then
     # Full planning mode
     MODE="plan"
     PROMPT_FILE="PROMPT_plan.md"
+    MAX_ITERATIONS=${2:-0}
+elif [ "$1" = "build" ]; then
+    # Explicit build mode (with optional max iterations)
     MAX_ITERATIONS=${2:-0}
 elif [ "$1" = "plan-work" ]; then
     # Scoped planning mode
@@ -943,7 +953,7 @@ elif [ "$1" = "plan-work" ]; then
     PROMPT_FILE="PROMPT_plan_work.md"
     MAX_ITERATIONS=${3:-5}  # Default 5 for work planning
 elif [[ "$1" =~ ^[0-9]+$ ]]; then
-    # Build mode with max iterations
+    # Build mode with max iterations (bare number)
     MAX_ITERATIONS=$1
 else
     # Build mode, unlimited

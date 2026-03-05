@@ -1705,10 +1705,11 @@
                     </button>
                   </div>
                   <pre><code><span class="token-comment">#!/bin/bash</span>
-<span class="token-comment"># Usage: ./loop.sh [plan] [max_iterations]</span>
+<span class="token-comment"># Usage: ./loop.sh [plan|build] [max_iterations]</span>
 <span class="token-comment"># Examples:</span>
 <span class="token-comment">#   ./loop.sh              # Build mode, unlimited tasks</span>
 <span class="token-comment">#   ./loop.sh 20           # Build mode, max 20 tasks</span>
+<span class="token-comment">#   ./loop.sh build 20     # Build mode, max 20 tasks</span>
 <span class="token-comment">#   ./loop.sh plan         # Plan mode, unlimited tasks</span>
 <span class="token-comment">#   ./loop.sh plan 5       # Plan mode, max 5 tasks</span>
 
@@ -1718,8 +1719,13 @@
     MODE=<span class="token-string">"plan"</span>
     PROMPT_FILE=<span class="token-string">"PROMPT_plan.md"</span>
     MAX_ITERATIONS=<span class="token-variable">${2:-0}</span>
+<span class="token-keyword">elif</span> [ <span class="token-string">"$1"</span> = <span class="token-string">"build"</span> ]; <span class="token-keyword">then</span>
+    <span class="token-comment"># Explicit build mode</span>
+    MODE=<span class="token-string">"build"</span>
+    PROMPT_FILE=<span class="token-string">"PROMPT_build.md"</span>
+    MAX_ITERATIONS=<span class="token-variable">${2:-0}</span>
 <span class="token-keyword">elif</span> [[ <span class="token-string">"$1"</span> =~ ^[0-9]+$ ]]; <span class="token-keyword">then</span>
-    <span class="token-comment"># Build mode with max tasks</span>
+    <span class="token-comment"># Build mode with max tasks (bare number)</span>
     MODE=<span class="token-string">"build"</span>
     PROMPT_FILE=<span class="token-string">"PROMPT_build.md"</span>
     MAX_ITERATIONS=$1
@@ -2981,8 +2987,8 @@ test("brand visual consistency", async () =&gt; {
 set -euo pipefail
 
 # Usage:
-#   ./loop.sh [plan] [max_iterations]       # Plan/build on current branch
-#   ./loop.sh plan-work "work description"  # Create scoped plan on current branch
+#   ./loop.sh [plan|build] [max_iterations]  # Plan/build on current branch
+#   ./loop.sh plan-work "work description"   # Create scoped plan on current branch
 
 # Parse arguments
 MODE="build"
@@ -2991,6 +2997,8 @@ PROMPT_FILE="PROMPT_build.md"
 if [ "$1" = "plan" ]; then
     MODE="plan"
     PROMPT_FILE="PROMPT_plan.md"
+    MAX_ITERATIONS=${2:-0}
+elif [ "$1" = "build" ]; then
     MAX_ITERATIONS=${2:-0}
 elif [ "$1" = "plan-work" ]; then
     if [ -z "$2" ]; then
