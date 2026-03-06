@@ -30,6 +30,7 @@ Hope this helps you out - [@ClaytonFarr](https://x.com/ClaytonFarr)
 - [Workflow](#workflow)
 - [Key Principles](#key-principles)
 - [Loop Mechanics](#loop-mechanics)
+- [License](#license)
 - [Files](#files)
 - [Enhancements?](#enhancements)
 
@@ -382,6 +383,13 @@ _Differences from base `loop.sh`:_
 _Files:_ [`loop_streamed.sh`](files/loop_streamed.sh) · [`parse_stream.js`](files/parse_stream.js)
 
 — contributed by [@terry-xyz](https://github.com/terry-xyz) · [@blackrosesxyz](https://x.com/blackrosesxyz)
+
+## License
+
+This repository is available under the [MIT License](LICENSE).
+
+Third-party screenshots and externally sourced images are excluded unless
+explicitly noted otherwise. See [NOTICE](NOTICE) for details.
 
 ---
 
