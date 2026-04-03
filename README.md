@@ -177,11 +177,12 @@ Ralph's effectiveness comes from how much you trust it do the right thing (event
   - To operate autonomously, Ralph requires `--yolo` - asking for approval on every tool call would break the loop. This bypasses Cursor Agent's permission system entirely - so a sandbox becomes your only security boundary.
   - Philosophy: "It's not if it gets popped, it's when. And what is the blast radius?"
   - Running without a sandbox exposes credentials, browser cookies, SSH keys, and access tokens on your machine
+  - This repo's `loop.sh` and `loop_streamed.sh` (and the copies under `files/`) invoke Cursor Agent with `--sandbox enabled`, which turns on Cursor's built-in OS-level sandbox for the agent process. That reduces blast radius on the host when you also pass `--yolo`. It is not a substitute for running on a dedicated machine or an external sandbox when the task needs stronger isolation.
   - Run in isolated environments with minimum viable access:
     - Only the API keys and deploy keys needed for the task
     - No access to private data beyond requirements
     - Restrict network connectivity where possible
-  - Options: Docker sandboxes (local), Fly Sprites/E2B/etc. (remote/production) - [additional notes](references/sandbox-environments.md)
+  - Options: Cursor `--sandbox enabled` (loop scripts), Docker sandboxes (local), Fly Sprites/E2B/etc. (remote/production) - [additional notes](references/sandbox-environments.md)
   - Additional escape hatches: Ctrl+C stops the loop; `git reset --hard` reverts uncommitted changes; regenerate plan if trajectory goes wrong
 
 ### 🚦 Move Outside the Loop

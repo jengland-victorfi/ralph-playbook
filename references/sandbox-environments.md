@@ -12,6 +12,20 @@ Run on dedicated VMs or local Docker sandboxes. Restrict network connectivity, p
 
 ---
 
+## Cursor Agent built-in sandbox (`--sandbox enabled`)
+
+When you run Cursor Agent from this playbook's loop scripts, the CLI is invoked with `--sandbox enabled`. That enables Cursor's **built-in OS-level sandbox** around the agent process so tool execution is constrained on the machine where the CLI runs.
+
+**How it fits the model above:** External sandboxes (Docker, E2B, Sprites, etc.) treat the **whole environment** as the security boundary. Cursor's flag adds a **process-level** boundary on the host: useful default hygiene and smaller blast radius when combined with autonomous mode (`--yolo`), but not the same as executing only inside an isolated VM or container you control.
+
+**Practical notes:**
+
+- Prefer `--sandbox enabled` for local Ralph loops; the repo's `loop.sh` / `loop_streamed.sh` (and `files/` copies) already pass it to `cursor-agent`.
+- For high-risk tasks, secrets-heavy machines, or multi-tenant use, still prefer a dedicated host or an external sandbox provider from the options below.
+- Keep credentials and network exposure minimal regardless of sandbox layer.
+
+---
+
 ## Options
 
 ### Sprites (Fly.io)

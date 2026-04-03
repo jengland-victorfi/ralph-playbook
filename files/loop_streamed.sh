@@ -79,7 +79,7 @@ while true; do
     echo "⏳ Running Cursor Agent..."
     echo "   - Model:  $MODEL"
     echo "   - Prompt: $PROMPT_FILE"
-    echo "   - Flags:  --print $YOLO_FLAG --stream-partial-output"
+    echo "   - Flags:  --print $YOLO_FLAG --sandbox enabled --stream-partial-output"
     echo ""
 
     # Stream JSON with partial messages, parse for readable output

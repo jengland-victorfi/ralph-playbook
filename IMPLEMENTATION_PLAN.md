@@ -1,0 +1,1 @@
+- (none) Sandbox loop integration, README/reference updates, and `src/lib/` scaffold are done. Use PLANNING mode to refresh tasks from `specs/*` when new JTBD specs land.
