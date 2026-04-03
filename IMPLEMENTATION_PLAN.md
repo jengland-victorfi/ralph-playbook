@@ -1,1 +1,3 @@
 - (none) Sandbox loop integration, README/reference updates, `src/lib/` scaffold (`.gitkeep`), and **`specs` loop mode** (`./loop.sh specs` / `./loop_streamed.sh specs` → `PROMPT_specs.md`) are wired. `specs/` still has only `README.md` (no numbered JTBD topic files); run specs mode or `./loop.sh plan` to add `specs/*.md` and repopulate this plan before BUILD has feature work. Refresh tasks from `specs/*` whenever new JTBD specs land.
+
+- **Done:** `parse_stream.ts` uses a Simpsons-inspired 256-color palette for stream-json pretty-printing; assistant lines are labeled `[Ralph]`. Validated with `bun build parse_stream.ts --outdir=/tmp/ralph-parse-check`.

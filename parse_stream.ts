@@ -5,19 +5,33 @@
  */
 import * as readline from "readline";
 
-const ansi = {
+/** Simpsons-ish 256-color terminal palette */
+const sim = {
   reset: "\x1b[0m",
   dim: "\x1b[2m",
   bold: "\x1b[1m",
   italic: "\x1b[3m",
   underline: "\x1b[4m",
-  green: "\x1b[32m",
-  yellow: "\x1b[33m",
-  blue: "\x1b[34m",
-  magenta: "\x1b[35m",
-  cyan: "\x1b[36m",
-  red: "\x1b[31m",
-  gray: "\x1b[90m",
+  /** Springfield sky — user prompt */
+  sky: "\x1b[38;5;81m",
+  /** Classic Simpson yellow — Ralph label */
+  yellow: "\x1b[1;38;5;220m",
+  /** Same yellow, no bold — italics in Ralph's reply */
+  yellowSoft: "\x1b[38;5;220m",
+  /** Bart's shirt — tool calls */
+  orange: "\x1b[38;5;208m",
+  /** Marge's hair — headings, links */
+  marge: "\x1b[38;5;33m",
+  /** Springfield grass — success */
+  grass: "\x1b[38;5;82m",
+  /** Pink donut frosting — session result */
+  donut: "\x1b[38;5;213m",
+  /** Duff can / nuclear — errors */
+  duff: "\x1b[38;5;196m",
+  /** Sidewalk / chalkboard — muted code */
+  sidewalk: "\x1b[38;5;245m",
+  /** Gold star — inline code */
+  gold: "\x1b[38;5;214m",
 };
 
 const mdOpts = {
@@ -36,23 +50,23 @@ function markdownToAnsi(source: string): string {
         text,
         {
           heading: (children, { level }) =>
-            `${ansi.bold}${ansi.cyan}${"#".repeat(level)} ${children}${ansi.reset}\n`,
+            `${sim.bold}${sim.marge}${"#".repeat(level)} ${children}${sim.reset}\n`,
           paragraph: (children) => `${children}\n`,
           blockquote: (children) =>
             children
               .split("\n")
-              .map((line) => `${ansi.dim}|${ansi.reset} ${line}`)
+              .map((line) => `${sim.dim}|${sim.reset} ${line}`)
               .join("\n") + "\n",
           code: (children, meta) => {
-            const lang = meta?.language ? `${ansi.dim}${meta.language}${ansi.reset}\n` : "";
-            return `${lang}${ansi.gray}${children}${ansi.reset}\n`;
+            const lang = meta?.language ? `${sim.dim}${meta.language}${sim.reset}\n` : "";
+            return `${lang}${sim.sidewalk}${children}${sim.reset}\n`;
           },
-          codespan: (children) => `${ansi.yellow}${children}${ansi.reset}`,
-          strong: (children) => `${ansi.bold}${children}${ansi.reset}`,
-          emphasis: (children) => `${ansi.italic}${children}${ansi.reset}`,
-          strikethrough: (children) => `${ansi.dim}~${children}~${ansi.reset}`,
+          codespan: (children) => `${sim.gold}${children}${sim.reset}`,
+          strong: (children) => `${sim.bold}${sim.orange}${children}${sim.reset}`,
+          emphasis: (children) => `${sim.italic}${sim.yellowSoft}${children}${sim.reset}`,
+          strikethrough: (children) => `${sim.dim}~${children}~${sim.reset}`,
           link: (children, { href }) =>
-            `${ansi.blue}${ansi.underline}${children}${ansi.reset} ${ansi.dim}(${href})${ansi.reset}`,
+            `${sim.marge}${sim.underline}${children}${sim.reset} ${sim.dim}(${href})${sim.reset}`,
           list: (children) => children,
           listItem: (children, { index, depth, ordered, start, checked }) => {
             const pad = "  ".repeat(depth);
@@ -63,14 +77,14 @@ function markdownToAnsi(source: string): string {
             else marker = "-";
             return `${pad}${marker} ${children.trimEnd()}\n`;
           },
-          hr: () => `${ansi.dim}────────────────${ansi.reset}\n`,
+          hr: () => `${sim.dim}────────────────${sim.reset}\n`,
           table: (children) => `\n${children}`,
           thead: (children) => children,
           tbody: (children) => children,
           tr: (children) => `${children}\n`,
           th: (children, { align }) => {
             const a = align ? `:${align}` : "";
-            return `${ansi.bold}${children}${ansi.reset}${a}\t`;
+            return `${sim.bold}${sim.marge}${children}${sim.reset}${a}\t`;
           },
           td: (children) => `${children}\t`,
         },
@@ -122,11 +136,11 @@ function formatTodoLine(t: { status?: string; content?: string }): string {
 
 function formatToolStarted(obj: Record<string, unknown>): string {
   const tc = obj.tool_call as Record<string, unknown> | undefined;
-  if (!tc) return `\n${ansi.yellow}[TOOL]${ansi.reset} (unknown)`;
+  if (!tc) return `\n${sim.orange}[TOOL]${sim.reset} (unknown)`;
 
   if (tc.shellToolCall) {
     const c = tc.shellToolCall as { args?: { command?: string } };
-    return `\n${ansi.yellow}[SHELL]${ansi.reset} ${c.args?.command ?? ""}`;
+    return `\n${sim.orange}[SHELL]${sim.reset} ${c.args?.command ?? ""}`;
   }
   if (tc.readToolCall) {
     const c = tc.readToolCall as { args?: { path?: string; offset?: number; limit?: number } };
@@ -134,25 +148,25 @@ function formatToolStarted(obj: Record<string, unknown>): string {
       c.args?.offset != null
         ? ` (offset: ${c.args.offset}, limit: ${c.args.limit ?? ""})`
         : "";
-    return `\n${ansi.yellow}[READ]${ansi.reset} ${c.args?.path ?? ""}${extra}`;
+    return `\n${sim.orange}[READ]${sim.reset} ${c.args?.path ?? ""}${extra}`;
   }
   if (tc.editToolCall) {
     const c = tc.editToolCall as { args?: { path?: string } };
-    return `\n${ansi.yellow}[EDIT]${ansi.reset} ${c.args?.path ?? ""}`;
+    return `\n${sim.orange}[EDIT]${sim.reset} ${c.args?.path ?? ""}`;
   }
   if (tc.grepToolCall) {
     const c = tc.grepToolCall as { args?: { pattern?: string; path?: string } };
-    return `\n${ansi.yellow}[GREP]${ansi.reset} ${c.args?.pattern ?? ""} in ${c.args?.path ?? ""}`;
+    return `\n${sim.orange}[GREP]${sim.reset} ${c.args?.pattern ?? ""} in ${c.args?.path ?? ""}`;
   }
   if (tc.lsToolCall) {
     const c = tc.lsToolCall as { args?: { path?: string; ignore?: string[] } };
     const ign =
       c.args?.ignore?.length ? ` (ignore: ${c.args.ignore.join(", ")})` : "";
-    return `\n${ansi.yellow}[LS]${ansi.reset} ${c.args?.path ?? ""}${ign}`;
+    return `\n${sim.orange}[LS]${sim.reset} ${c.args?.path ?? ""}${ign}`;
   }
   if (tc.globToolCall) {
     const c = tc.globToolCall as { args?: { globPattern?: string; targetDirectory?: string } };
-    return `\n${ansi.yellow}[GLOB]${ansi.reset} ${c.args?.globPattern ?? ""} in ${c.args?.targetDirectory ?? ""}`;
+    return `\n${sim.orange}[GLOB]${sim.reset} ${c.args?.globPattern ?? ""} in ${c.args?.targetDirectory ?? ""}`;
   }
   if (tc.todoToolCall) {
     const c = tc.todoToolCall as {
@@ -163,7 +177,7 @@ function formatToolStarted(obj: Record<string, unknown>): string {
     let body = "";
     if (c.args?.todos?.length)
       body = `\n  ${c.args.todos.map(formatTodoLine).join("\n  ")}`;
-    return `\n${ansi.yellow}[TODO]${ansi.reset} ${m} ${n} todos${body}`;
+    return `\n${sim.orange}[TODO]${sim.reset} ${m} ${n} todos${body}`;
   }
   if (tc.updateTodosToolCall) {
     const c = tc.updateTodosToolCall as {
@@ -174,47 +188,47 @@ function formatToolStarted(obj: Record<string, unknown>): string {
     let body = "";
     if (c.args?.todos?.length)
       body = `\n  ${c.args.todos.map(formatTodoLine).join("\n  ")}`;
-    return `\n${ansi.yellow}[UPDATE_TODOS]${ansi.reset} ${m} ${n} todos${body}`;
+    return `\n${sim.orange}[UPDATE_TODOS]${sim.reset} ${m} ${n} todos${body}`;
   }
   if (tc.writeToolCall) {
     const c = tc.writeToolCall as { args?: { path?: string; fileText?: string } };
     const len = c.args?.fileText?.length ?? 0;
     const preview = truncate(c.args?.fileText ?? "", 100);
-    return `\n${ansi.yellow}[WRITE]${ansi.reset} ${c.args?.path ?? ""} (${len} chars)\n  ${preview}`;
+    return `\n${sim.orange}[WRITE]${sim.reset} ${c.args?.path ?? ""} (${len} chars)\n  ${preview}`;
   }
   if (tc.deleteToolCall) {
     const c = tc.deleteToolCall as { args?: { path?: string } };
-    return `\n${ansi.yellow}[DELETE]${ansi.reset} ${c.args?.path ?? ""}`;
+    return `\n${sim.orange}[DELETE]${sim.reset} ${c.args?.path ?? ""}`;
   }
 
   const keys = Object.keys(tc);
   const first = keys[0];
-  if (!first) return `\n${ansi.yellow}[TOOL]${ansi.reset}`;
+  if (!first) return `\n${sim.orange}[TOOL]${sim.reset}`;
   const inner = tc[first] as { args?: Record<string, unknown> } | undefined;
   const argStr = inner?.args ? formatArgs(inner.args) : "";
-  return `\n${ansi.yellow}[TOOL]${ansi.reset} ${first}${argStr}`;
+  return `\n${sim.orange}[TOOL]${sim.reset} ${first}${argStr}`;
 }
 
 function formatToolCompleted(obj: Record<string, unknown>): string {
   const tc = obj.tool_call as Record<string, unknown> | undefined;
-  if (!tc) return `\n${ansi.gray}✓ Completed${ansi.reset}`;
+  if (!tc) return `\n${sim.grass}✓ Completed${sim.reset}`;
 
   if (tc.shellToolCall) {
     const c = tc.shellToolCall as { result?: { success?: { exitCode?: number } } };
     if (c.result?.success)
-      return `\n${ansi.gray}✓ Exit ${c.result.success.exitCode ?? "?"}${ansi.reset}`;
-    return `\n${ansi.red}✗ Failed${ansi.reset}`;
+      return `\n${sim.grass}✓ Exit ${c.result.success.exitCode ?? "?"}${sim.reset}`;
+    return `\n${sim.duff}✗ Failed${sim.reset}`;
   }
   if (tc.readToolCall) {
     const c = tc.readToolCall as { result?: { success?: { totalLines?: number } } };
     if (c.result?.success)
-      return `\n${ansi.gray}✓ Read ${c.result.success.totalLines ?? "?"} lines${ansi.reset}`;
-    return `\n${ansi.red}✗ Read failed${ansi.reset}`;
+      return `\n${sim.grass}✓ Read ${c.result.success.totalLines ?? "?"} lines${sim.reset}`;
+    return `\n${sim.duff}✗ Read failed${sim.reset}`;
   }
   if (tc.editToolCall) {
     const c = tc.editToolCall as { result?: { success?: unknown } };
-    if (c.result?.success) return `\n${ansi.gray}✓ Edited${ansi.reset}`;
-    return `\n${ansi.red}✗ Edit failed${ansi.reset}`;
+    if (c.result?.success) return `\n${sim.grass}✓ Edited${sim.reset}`;
+    return `\n${sim.duff}✗ Edit failed${sim.reset}`;
   }
   if (tc.grepToolCall) {
     const c = tc.grepToolCall as {
@@ -226,9 +240,9 @@ function formatToolCompleted(obj: Record<string, unknown>): string {
       const wr = c.result.success.workspaceResults;
       const first = wr && Object.values(wr)[0];
       const n = first?.content?.totalMatchedLines ?? "?";
-      return `\n${ansi.gray}✓ Found ${n} matches${ansi.reset}`;
+      return `\n${sim.grass}✓ Found ${n} matches${sim.reset}`;
     }
-    return `\n${ansi.red}✗ Grep failed${ansi.reset}`;
+    return `\n${sim.duff}✗ Grep failed${sim.reset}`;
   }
   if (tc.lsToolCall) {
     const c = tc.lsToolCall as {
@@ -238,15 +252,15 @@ function formatToolCompleted(obj: Record<string, unknown>): string {
       const root = c.result.success.directoryTreeRoot;
       const f = root?.childrenFiles?.length ?? 0;
       const d = root?.childrenDirs?.length ?? 0;
-      return `\n${ansi.gray}✓ Listed ${f} files, ${d} dirs${ansi.reset}`;
+      return `\n${sim.grass}✓ Listed ${f} files, ${d} dirs${sim.reset}`;
     }
-    return `\n${ansi.red}✗ List failed${ansi.reset}`;
+    return `\n${sim.duff}✗ List failed${sim.reset}`;
   }
   if (tc.globToolCall) {
     const c = tc.globToolCall as { result?: { success?: { totalFiles?: number } } };
     if (c.result?.success)
-      return `\n${ansi.gray}✓ Found ${c.result.success.totalFiles ?? "?"} files${ansi.reset}`;
-    return `\n${ansi.red}✗ Glob failed${ansi.reset}`;
+      return `\n${sim.grass}✓ Found ${c.result.success.totalFiles ?? "?"} files${sim.reset}`;
+    return `\n${sim.duff}✗ Glob failed${sim.reset}`;
   }
   if (tc.todoToolCall) {
     const c = tc.todoToolCall as {
@@ -256,9 +270,9 @@ function formatToolCompleted(obj: Record<string, unknown>): string {
       let body = "";
       if (c.result.success.todos?.length)
         body = `\n  ${c.result.success.todos.map(formatTodoLine).join("\n  ")}`;
-      return `\n${ansi.gray}✓ Updated todos${ansi.reset}${body}`;
+      return `\n${sim.grass}✓ Updated todos${sim.reset}${body}`;
     }
-    return `\n${ansi.red}✗ Todo update failed${ansi.reset}`;
+    return `\n${sim.duff}✗ Todo update failed${sim.reset}`;
   }
   if (tc.updateTodosToolCall) {
     const c = tc.updateTodosToolCall as {
@@ -268,9 +282,9 @@ function formatToolCompleted(obj: Record<string, unknown>): string {
       let body = "";
       if (c.result.success.todos?.length)
         body = `\n  ${c.result.success.todos.map(formatTodoLine).join("\n  ")}`;
-      return `\n${ansi.gray}✓ Updated todos${ansi.reset}${body}`;
+      return `\n${sim.grass}✓ Updated todos${sim.reset}${body}`;
     }
-    return `\n${ansi.red}✗ Todo update failed${ansi.reset}`;
+    return `\n${sim.duff}✗ Todo update failed${sim.reset}`;
   }
   if (tc.writeToolCall) {
     const c = tc.writeToolCall as {
@@ -279,9 +293,9 @@ function formatToolCompleted(obj: Record<string, unknown>): string {
     };
     if (c.result?.success) {
       const p = c.args?.path ?? "";
-      return `\n${ansi.gray}✓ Wrote ${c.result.success.linesCreated ?? "?"} lines (${c.result.success.fileSize ?? "?"} bytes) to ${p}${ansi.reset}`;
+      return `\n${sim.grass}✓ Wrote ${c.result.success.linesCreated ?? "?"} lines (${c.result.success.fileSize ?? "?"} bytes) to ${p}${sim.reset}`;
     }
-    return `\n${ansi.red}✗ Write failed${ansi.reset}`;
+    return `\n${sim.duff}✗ Write failed${sim.reset}`;
   }
   if (tc.deleteToolCall) {
     const c = tc.deleteToolCall as {
@@ -289,13 +303,13 @@ function formatToolCompleted(obj: Record<string, unknown>): string {
       args?: { path?: string };
     };
     if (c.result?.success)
-      return `\n${ansi.gray}✓ Deleted ${c.args?.path ?? ""}${ansi.reset}`;
+      return `\n${sim.grass}✓ Deleted ${c.args?.path ?? ""}${sim.reset}`;
     if (c.result?.rejected)
-      return `\n${ansi.red}✗ Delete rejected: ${c.result.rejected.reason ?? "unknown"}${ansi.reset}`;
-    return `\n${ansi.red}✗ Delete failed${ansi.reset}`;
+      return `\n${sim.duff}✗ Delete rejected: ${c.result.rejected.reason ?? "unknown"}${sim.reset}`;
+    return `\n${sim.duff}✗ Delete failed${sim.reset}`;
   }
 
-  return `\n${ansi.gray}✓ Completed${ansi.reset}`;
+  return `\n${sim.grass}✓ Completed${sim.reset}`;
 }
 
 function processLine(line: string): void {
@@ -314,14 +328,14 @@ function processLine(line: string): void {
   if (type === "user") {
     const text = extractMessageText(obj.message as { content?: ContentBlock[] });
     if (text)
-      process.stdout.write(`\n${ansi.cyan}[USER]${ansi.reset}\n${markdownToAnsi(text)}`);
+      process.stdout.write(`\n${sim.sky}[USER]${sim.reset}\n${markdownToAnsi(text)}`);
     return;
   }
 
   if (type === "assistant") {
     const text = extractMessageText(obj.message as { content?: ContentBlock[] });
     if (text)
-      process.stdout.write(`\n${ansi.green}[ASSISTANT]${ansi.reset}\n${markdownToAnsi(text)}`);
+      process.stdout.write(`\n${sim.yellow}[Ralph]${sim.reset}\n${markdownToAnsi(text)}`);
     return;
   }
 
@@ -339,7 +353,7 @@ function processLine(line: string): void {
     const subtype = String(obj.subtype ?? "");
     const ms = obj.duration_ms;
     process.stdout.write(
-      `\n${ansi.magenta}[RESULT]${ansi.reset} ${subtype} (${ms != null ? `${ms}ms` : "?"})`,
+      `\n${sim.donut}[RESULT]${sim.reset} ${subtype} (${ms != null ? `${ms}ms` : "?"})`,
     );
     return;
   }
