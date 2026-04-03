@@ -1,3 +1,10 @@
-- (none) Sandbox loop integration, README/reference updates, `src/lib/` scaffold (`.gitkeep`), and **`specs` loop mode** (`./loop.sh specs` / `./loop_streamed.sh specs` → `PROMPT_specs.md`) are wired. `specs/` still has only `README.md` (no numbered JTBD topic files); run specs mode or `./loop.sh plan` to add `specs/*.md` and repopulate this plan before BUILD has feature work. Refresh tasks from `specs/*` whenever new JTBD specs land.
-
-- **Done:** `parse_stream.ts` uses a Simpsons-inspired 256-color palette for stream-json pretty-printing; assistant lines are labeled `[Ralph]`. Validated with `bun build parse_stream.ts --outdir=/tmp/ralph-parse-check`.
+- Add the `--sandbox enabled` flag to `loop.sh` and `files/loop.sh`
+- Add the `--sandbox enabled` flag to `loop_streamed.sh` and `files/loop_streamed.sh`
+- Update the "Use protection" section in `README.md` to explain the new security posture with `--sandbox enabled`
+- Add a new section to `references/sandbox-environments.md` detailing Cursor's built-in sandbox
+- Update `PROMPT_build.md` with Cursor subagent terminology (`Explore`, `Bash`, `generalPurpose`)
+- Update `PROMPT_plan.md` with Cursor subagent terminology
+- Update `PROMPT_reverse_engineer_specs.md` with Cursor subagent terminology
+- Update `PROMPT_specs.md` with Cursor subagent terminology
+- Sync all prompt changes to the `files/` directory templates
+- Update `README.md` and `index.html` documentation to reflect the new Cursor subagent terminology
