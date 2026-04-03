@@ -83,7 +83,7 @@ Execute the instructions above."
         --model "$MODEL" \
         --output-format stream-json \
         --stream-partial-output \
-        "$FULL_PROMPT" | node "$SCRIPT_DIR/parse_stream.js"
+        "$FULL_PROMPT" | node "$SCRIPT_DIR/files/parse_stream.js"
 
     echo ""
     echo "✅ Cursor Agent iteration complete"

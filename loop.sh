@@ -1,12 +1,13 @@
 #!/bin/bash
-set -o pipefail
-# Usage: ./loop_streamed.sh [plan|build] [max_iterations]
+set -eo pipefail
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+# Usage: ./loop.sh [plan|build] [max_iterations]
 # Examples:
-#   ./loop_streamed.sh              # Build mode, unlimited iterations
-#   ./loop_streamed.sh 20           # Build mode, max 20 iterations
-#   ./loop_streamed.sh build 20     # Build mode, max 20 iterations
-#   ./loop_streamed.sh plan         # Plan mode, unlimited iterations
-#   ./loop_streamed.sh plan 5       # Plan mode, max 5 iterations
+#   ./loop.sh              # Build mode, unlimited iterations
+#   ./loop.sh 20           # Build mode, max 20 iterations
+#   ./loop.sh build 20     # Build mode, max 20 iterations
+#   ./loop.sh plan         # Plan mode, unlimited iterations
+#   ./loop.sh plan 5       # Plan mode, max 5 iterations
 
 # Parse arguments
 if [ "$1" = "plan" ]; then
@@ -58,35 +59,23 @@ while true; do
     fi
 
     # Run Ralph iteration with selected prompt
-    # --print: Headless mode (non-interactive, prints output and exits)
-    # --yolo: Auto-approve all tool calls (YOLO mode)
-    # --sandbox enabled: Cursor Agent OS-level sandbox (mitigates blast radius with --yolo)
-    # --model $MODEL: Uses gemini-3.1-pro for planning, auto for building
-    # --output-format stream-json: Structured output piped to files/parse_stream.js (stream_event / partial output)
-    # --stream-partial-output: Stream partial tool results for live feedback
-
-    FULL_PROMPT="$(cat "$PROMPT_FILE")
-
-Execute the instructions above."
-
     echo "⏳ Running Cursor Agent..."
     echo "   - Model:  $MODEL"
     echo "   - Prompt: $PROMPT_FILE"
-    echo "   - Flags:  --print --yolo --stream-partial-output"
+    echo "   - Flags:  --print --yolo --sandbox enabled"
     echo ""
 
-    # Stream JSON with partial messages, parse for readable output
-    SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
+    # --print: Headless mode (non-interactive, reads from stdin)
+    # --yolo: Auto-approve all tool calls (YOLO mode)
+    # --sandbox enabled: Cursor Agent OS-level sandbox (mitigates blast radius with --yolo)
+    # --model $MODEL: Uses gemini-3.1-pro for planning, auto for building
+    # --output-format stream-json: line-delimited events; piped to parse_stream.ts for readable output
     cursor-agent --print \
         --yolo \
         --sandbox enabled \
-        --model "$MODEL" \
         --output-format stream-json \
-        --stream-partial-output \
-        "$FULL_PROMPT" | node "$SCRIPT_DIR/parse_stream.js"
-
-    echo ""
-    echo "✅ Cursor Agent iteration complete"
+        --model "$MODEL" \
+        "$(cat "$PROMPT_FILE")" | bun run "$SCRIPT_DIR/parse_stream.ts"
 
     # Changes are committed locally by the agent
 
