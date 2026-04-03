@@ -328,11 +328,9 @@ while true; do
     # Run Ralph iteration with selected prompt
     # --print: Headless mode (non-interactive, reads from stdin)
     # --yolo: Auto-approve all tool calls (YOLO mode)
-    # --output-format stream-json: Structured output for logging/monitoring
     # --model $MODEL: Uses gemini-3.1-pro for planning, auto for building
     cursor-agent --print \
         --yolo \
-        --output-format stream-json \
         --model "$MODEL" \
         "$(cat "$PROMPT_FILE")"
 
@@ -358,7 +356,7 @@ _Max-iterations:_
 _Cursor Agent CLI flags:_
 
 - `--print` (headless mode): Enables non-interactive operation, prints output and exits
-- `--yolo`: Bypasses all permission prompts for fully automated runs (alias for `--force`)
+- `--yolo`: Optional. Bypasses all permission prompts for fully automated runs (alias for `--force`). Pass this to `./loop.sh` if you want zero interruptions.
 - `--output-format stream-json`: Outputs structured JSON for logging/monitoring/visualization
 - `--model <model>`: Uses `gemini-3.1-pro` for planning tasks, and `auto` for building/implementation tasks.
 
@@ -1045,13 +1043,11 @@ while true; do
     if [ "$MODE" = "plan-work" ]; then
         cursor-agent --print \
             --yolo \
-            --output-format stream-json \
             --model "$MODEL" \
             "$(envsubst < "$PROMPT_FILE")"
     else
         cursor-agent --print \
             --yolo \
-            --output-format stream-json \
             --model "$MODEL" \
             "$(cat "$PROMPT_FILE")"
     fi

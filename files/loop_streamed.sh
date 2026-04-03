@@ -9,6 +9,17 @@ set -o pipefail
 #   ./loop_streamed.sh plan 5       # Plan mode, max 5 iterations
 
 # Parse arguments
+YOLO_FLAG=""
+POSITIONAL_ARGS=()
+for arg in "$@"; do
+    if [ "$arg" = "--yolo" ]; then
+        YOLO_FLAG="--yolo"
+    else
+        POSITIONAL_ARGS+=("$arg")
+    fi
+done
+set -- "${POSITIONAL_ARGS[@]}"
+
 if [ "$1" = "plan" ]; then
     # Plan mode
     MODE="plan"
@@ -59,31 +70,27 @@ while true; do
 
     # Run Ralph iteration with selected prompt
     # --print: Headless mode (non-interactive, prints output and exits)
-    # --yolo: Auto-approve all tool calls (YOLO mode)
+    # --yolo: Auto-approve all tool calls (if passed)
     # --sandbox enabled: Cursor Agent OS-level sandbox (mitigates blast radius with --yolo)
     # --model $MODEL: Uses gemini-3.1-pro for planning, auto for building
     # --output-format stream-json: Structured output piped to files/parse_stream.js (stream_event / partial output)
     # --stream-partial-output: Stream partial tool results for live feedback
 
-    FULL_PROMPT="$(cat "$PROMPT_FILE")
-
-Execute the instructions above."
-
     echo "⏳ Running Cursor Agent..."
     echo "   - Model:  $MODEL"
     echo "   - Prompt: $PROMPT_FILE"
-    echo "   - Flags:  --print --yolo --stream-partial-output"
+    echo "   - Flags:  --print $YOLO_FLAG --stream-partial-output"
     echo ""
 
     # Stream JSON with partial messages, parse for readable output
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
     cursor-agent --print \
-        --yolo \
+        $YOLO_FLAG \
         --sandbox enabled \
         --model "$MODEL" \
         --output-format stream-json \
         --stream-partial-output \
-        "$FULL_PROMPT" | node "$SCRIPT_DIR/parse_stream.js"
+        "$PROMPT_FILE" | node "$SCRIPT_DIR/files/parse_stream.js"
 
     echo ""
     echo "✅ Cursor Agent iteration complete"

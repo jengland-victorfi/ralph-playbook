@@ -1,6 +1,6 @@
 #!/bin/bash
 set -eo pipefail
-SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 # Usage: ./loop.sh [plan|build] [max_iterations]
 # Examples:
 #   ./loop.sh              # Build mode, unlimited iterations
@@ -10,6 +10,17 @@ SCRIPT_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 #   ./loop.sh plan 5       # Plan mode, max 5 iterations
 
 # Parse arguments
+YOLO_FLAG=""
+POSITIONAL_ARGS=()
+for arg in "$@"; do
+    if [ "$arg" = "--yolo" ]; then
+        YOLO_FLAG="--yolo"
+    else
+        POSITIONAL_ARGS+=("$arg")
+    fi
+done
+set -- "${POSITIONAL_ARGS[@]}"
+
 if [ "$1" = "plan" ]; then
     # Plan mode
     MODE="plan"
@@ -62,20 +73,20 @@ while true; do
     echo "⏳ Running Cursor Agent..."
     echo "   - Model:  $MODEL"
     echo "   - Prompt: $PROMPT_FILE"
-    echo "   - Flags:  --print --yolo --sandbox enabled"
+    echo "   - Flags:  --print $YOLO_FLAG --sandbox enabled"
     echo ""
 
     # --print: Headless mode (non-interactive, reads from stdin)
-    # --yolo: Auto-approve all tool calls (YOLO mode)
+    # --yolo: Auto-approve all tool calls (if passed)
     # --sandbox enabled: Cursor Agent OS-level sandbox (mitigates blast radius with --yolo)
     # --model $MODEL: Uses gemini-3.1-pro for planning, auto for building
     # --output-format stream-json: line-delimited events; piped to parse_stream.ts for readable output
     cursor-agent --print \
-        --yolo \
+        $YOLO_FLAG \
         --sandbox enabled \
         --output-format stream-json \
         --model "$MODEL" \
-        "$(cat "$PROMPT_FILE")" | bun run "$SCRIPT_DIR/parse_stream.ts"
+        "$PROMPT_FILE" | bun run "$SCRIPT_DIR/parse_stream.ts"
 
     # Changes are committed locally by the agent
 
