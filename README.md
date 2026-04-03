@@ -471,7 +471,7 @@ _Note:_ Current subagents names presume using Cursor Agent (Sonnet 4 Thinking / 
 1. Your task is to implement functionality per the specifications using parallel subagents. Follow @IMPLEMENTATION_PLAN.md and choose the most important item to address. Before making changes, search the codebase (don't assume not implemented) using Sonnet subagents. You may use up to 500 parallel Sonnet subagents for searches/reads and only 1 Sonnet subagent for build/tests. Use Opus subagents when complex reasoning is needed (debugging, architectural decisions).
 2. After implementing functionality or resolving problems, run the tests for that unit of code that was improved. If functionality is missing then it's your job to add it as per the application specifications. Ultrathink.
 3. When you discover issues, immediately update @IMPLEMENTATION_PLAN.md with your findings using a subagent. When resolved, update and remove the item.
-4. When the tests pass, update @IMPLEMENTATION_PLAN.md, then `git add -A` then `git commit` with a message describing the changes.
+4. When the tests pass, update @IMPLEMENTATION_PLAN.md, then `git add -A` then `git commit` with a message describing the changes. Ensure the commit message includes the attribute `[Ralph]` to indicate it was committed by the agent.
 
 99999. Important: When authoring documentation, capture the why — tests and implementation importance.
 999999. Important: Single sources of truth, no migrations/adapters. If tests unrelated to your work fail, resolve them as part of the increment.
@@ -1427,7 +1427,7 @@ _Files:_ [`PROMPT_reverse_engineer_specs.md`](files/PROMPT_reverse_engineer_spec
 5. **Scope boundaries:** When tracing leaves the topic, stop. Document what crosses the boundary (sent/received) only. Test: "Could this change without changing my topic's outcomes?" If yes, it's across the boundary.
 6. **Shared behavior:** Inline fully in every spec (self-contained). Note shared topics for cross-spec tracking. Shared behavior also gets its own canonical spec.
 7. **Spec format:** Markdown in `specs/`. Each spec includes: topic statement, scope (in-scope and boundaries), data contracts, behaviors (in execution order), and state transitions. Mark notable/surprising behavior, unreachable paths, and shared cross-topic behavior inline. Capture rationale from source comments (strip implementation references). File naming: `specs/NN-kebab-case.md` (e.g., `01-session-management.md`).
-8. When specs are complete and validated, `git add -A` then `git commit` with a message describing which specs were added/updated.
+8. When specs are complete and validated, `git add -A` then `git commit` with a message describing which specs were added/updated. Ensure the commit message includes the attribute `[Ralph]` to indicate it was committed by the agent.
 
 99999. **Exhaustive checklist before finalizing:** Every entry point documented. Every branch traced to terminal. Every data contract. Every side effect in execution order. Every error path (caught/propagated/ignored). Every config-driven path. Concurrency outcomes. Unreachable paths marked. Notable/surprising behavior marked. Zero implementation details in output. If any item is missing, trace again.
 999999. The code is the source of truth. If specs are inconsistent with the code, update the spec using an Opus 4.6 subagent.
