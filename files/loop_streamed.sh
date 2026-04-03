@@ -13,21 +13,25 @@ if [ "$1" = "plan" ]; then
     # Plan mode
     MODE="plan"
     PROMPT_FILE="PROMPT_plan.md"
+    MODEL="gemini-3.1-pro"
     MAX_ITERATIONS=${2:-0}
 elif [ "$1" = "build" ]; then
     # Explicit build mode (with optional max iterations)
     MODE="build"
     PROMPT_FILE="PROMPT_build.md"
+    MODEL="auto"
     MAX_ITERATIONS=${2:-0}
 elif [[ "$1" =~ ^[0-9]+$ ]]; then
     # Build mode with max iterations (bare number)
     MODE="build"
     PROMPT_FILE="PROMPT_build.md"
+    MODEL="auto"
     MAX_ITERATIONS=$1
 else
     # Build mode, unlimited (no arguments or invalid input)
     MODE="build"
     PROMPT_FILE="PROMPT_build.md"
+    MODEL="auto"
     MAX_ITERATIONS=0
 fi
 
@@ -54,31 +58,30 @@ while true; do
     fi
 
     # Run Ralph iteration with selected prompt
-    # -p: Headless mode (non-interactive, prints output and exits)
-    # --dangerously-skip-permissions: Auto-approve all tool calls (YOLO mode)
-    # --model opus: Primary agent uses Opus for complex reasoning
-    # --verbose: Detailed execution logging
+    # --print: Headless mode (non-interactive, prints output and exits)
+    # --yolo: Auto-approve all tool calls (YOLO mode)
+    # --model $MODEL: Uses gemini-3.1-pro for planning, auto for building
     # --output-format stream-json: Structured output piped to parse_stream.js
-    # --include-partial-messages: Stream partial tool results for live feedback
+    # --stream-partial-output: Stream partial tool results for live feedback
 
     FULL_PROMPT="$(cat "$PROMPT_FILE")
 
 Execute the instructions above."
 
-    echo "⏳ Running Claude..."
+    echo "⏳ Running Cursor Agent..."
     echo ""
 
     # Stream JSON with partial messages, parse for readable output
     SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
-    claude -p "$FULL_PROMPT" \
-        --dangerously-skip-permissions \
-        --model opus \
-        --verbose \
+    cursor-agent --print \
+        --yolo \
+        --model "$MODEL" \
         --output-format stream-json \
-        --include-partial-messages | node "$SCRIPT_DIR/parse_stream.js"
+        --stream-partial-output \
+        "$FULL_PROMPT" | node "$SCRIPT_DIR/parse_stream.js"
 
     echo ""
-    echo "✅ Claude iteration complete"
+    echo "✅ Cursor Agent iteration complete"
 
     # Push changes after each iteration
     git push origin "$CURRENT_BRANCH" || {

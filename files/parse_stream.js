@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-// Parse Claude stream-json output for readable display
-// Usage: claude ... --output-format stream-json | node parse_stream.js
+// Parse Cursor Agent stream-json output for readable display
+// Usage: cursor-agent ... --output-format stream-json | node parse_stream.js
 
 const readline = require('readline');
 

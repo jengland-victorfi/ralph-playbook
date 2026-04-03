@@ -879,7 +879,7 @@
   <body>
     <!--
   =====================================================================
-  SYNC GUIDE FOR CLAUDE
+  SYNC GUIDE FOR CURSOR AGENT
   =====================================================================
 
   This HTML mirrors README.md content with styled presentation.
@@ -925,7 +925,7 @@
             <div class="tldr-title">TL;DR</div>
             <p>
               <strong>Ralph</strong> is an autonomous coding methodology that
-              runs Claude in a continuous loop, using file-based state to
+              runs Cursor Agent in a continuous loop, using file-based state to
               maintain context across iterations. Each loop: read plan → pick
               task → implement → test → commit → clear context → repeat.
             </p>
@@ -1449,7 +1449,7 @@
                     To operate autonomously, Ralph requires
                     <code>--dangerously-skip-permissions</code> - asking for
                     approval on every tool call would break the loop. This bypasses
-                    Claude's permission system entirely - so a sandbox becomes your
+                    Cursor Agent's permission system entirely - so a sandbox becomes your
                     only security boundary.
                   </li>
                   <li>
@@ -1598,7 +1598,7 @@
                 <span>bash</span>
                 <button class="copy-btn" onclick="copyCode(this)">Copy</button>
               </div>
-              <pre><code>while :; do cat PROMPT.md | claude ; done</code></pre>
+              <pre><code>while :; do cat PROMPT.md | cursor-agent ; done</code></pre>
             </div>
 
             <p>
@@ -1612,7 +1612,7 @@
             <ol>
               <li>
                 <strong>Bash loop runs</strong> → feeds
-                <code>PROMPT.md</code> to claude
+                <code>PROMPT.md</code> to cursor-agent
               </li>
               <li>
                 <strong>PROMPT.md instructs</strong> → "Study
@@ -1778,7 +1778,7 @@ CURRENT_BRANCH=$(<span class="token-function">git branch --show-current</span>)
     <span class="token-comment"># --model opus: Primary agent uses Opus for complex reasoning (task selection, prioritization)</span>
     <span class="token-comment">#               Can use 'sonnet' in build mode for speed if plan is clear and tasks well-defined</span>
     <span class="token-comment"># --verbose: Detailed execution logging</span>
-    <span class="token-function">cat</span> <span class="token-string">"$PROMPT_FILE"</span> | claude -p \
+    <span class="token-function">cat</span> <span class="token-string">"$PROMPT_FILE"</span> | cursor-agent -p \
         --dangerously-skip-permissions \
         --output-format=stream-json \
         --model opus \
@@ -1827,7 +1827,7 @@ CURRENT_BRANCH=$(<span class="token-function">git branch --show-current</span>)
               </li>
             </ul>
 
-            <h4>Claude CLI flags:</h4>
+            <h4>Cursor Agent CLI flags:</h4>
             <ul>
               <li>
                 <code>-p</code> (headless mode): Enables non-interactive
@@ -1854,7 +1854,7 @@ CURRENT_BRANCH=$(<span class="token-function">git branch --show-current</span>)
             <h3>Streamed Output Variant</h3>
 
             <p>
-              An alternative <code>loop_streamed.sh</code> that pipes Claude's
+              An alternative <code>loop_streamed.sh</code> that pipes Cursor Agent's
               raw JSON output through <code>parse_stream.js</code> for readable,
               color-coded terminal display showing tool calls, results, and
               execution stats.
@@ -1984,7 +1984,7 @@ CURRENT_BRANCH=$(<span class="token-function">git branch --show-current</span>)
               <pre><code>chmod +x loop.sh</code></pre>
             </div>
             <p>
-              <em>Core function:</em> Continuously feeds prompt file to Claude,
+              <em>Core function:</em> Continuously feeds prompt file to Cursor Agent,
               manages iteration limits, and pushes changes after each task
               completion.
             </p>
@@ -2047,7 +2047,7 @@ CURRENT_BRANCH=$(<span class="token-function">git branch --show-current</span>)
             <p><em>Notes:</em></p>
             <ul>
               <li>Update [project-specific goal] placeholder below.</li>
-              <li>Current subagents names presume using Claude.</li>
+              <li>Current subagents names presume using Cursor Agent.</li>
             </ul>
 
             <details>
@@ -2074,7 +2074,7 @@ ULTIMATE GOAL: We want to achieve [project-specific goal]. Consider missing elem
               </div>
             </details>
 
-            <p><em>Note:</em> Current subagents names presume using Claude.</p>
+            <p><em>Note:</em> Current subagents names presume using Cursor Agent.</p>
 
             <details>
               <summary>PROMPT_build.md Template</summary>
@@ -2259,17 +2259,17 @@ Succinct learnings about how to RUN the project:
             <details>
               <summary>
                 <span class="summary-title"
-                  >Use Claude's AskUserQuestionTool for Planning</span
+                  >Use Cursor Agent's AskUserQuestionTool for Planning</span
                 >
                 <span class="summary-desc"
-                  >Use Claude's built-in interview tool to systematically
+                  >Use Cursor Agent's built-in interview tool to systematically
                   clarify JTBD, edge cases, and acceptance criteria for
                   specs.</span
                 >
               </summary>
               <div class="details-content">
                 <p>
-                  During Phase 1 (Define Requirements), use Claude's built-in
+                  During Phase 1 (Define Requirements), use Cursor Agent's built-in
                   <code>AskUserQuestionTool</code> to systematically explore
                   JTBD, topics of concern, edge cases, and acceptance criteria
                   through structured interview before writing specs.
@@ -2287,7 +2287,7 @@ Succinct learnings about how to RUN the project:
                 </p>
 
                 <p>
-                  Claude will ask targeted questions to clarify requirements and
+                  Cursor Agent will ask targeted questions to clarify requirements and
                   ensure alignment before producing
                   <code>specs/*.md</code> files.
                 </p>
@@ -2295,15 +2295,15 @@ Succinct learnings about how to RUN the project:
                 <p><strong>Flow:</strong></p>
                 <ol>
                   <li>Start with known information →</li>
-                  <li>Claude interviews via AskUserQuestion →</li>
+                  <li>Cursor Agent interviews via AskUserQuestion →</li>
                   <li>Iterate until clear →</li>
-                  <li>Claude writes specs with acceptance criteria →</li>
+                  <li>Cursor Agent writes specs with acceptance criteria →</li>
                   <li>Proceed to planning/building</li>
                 </ol>
 
                 <p>
                   No code or prompt changes needed – this simply enhances Phase
-                  1 using existing Claude Code capabilities.
+                  1 using existing Cursor Agent Code capabilities.
                 </p>
 
                 <p>
@@ -3118,13 +3118,13 @@ while true; do
 
     # For plan-work mode, substitute ${WORK_SCOPE} in prompt before piping
     if [ "$MODE" = "plan-work" ]; then
-        envsubst &lt; "$PROMPT_FILE" | claude -p \
+        envsubst &lt; "$PROMPT_FILE" | cursor-agent -p \
             --dangerously-skip-permissions \
             --output-format=stream-json \
             --model opus \
             --verbose
     else
-        cat "$PROMPT_FILE" | claude -p \
+        cat "$PROMPT_FILE" | cursor-agent -p \
             --dangerously-skip-permissions \
             --output-format=stream-json \
             --model opus \
@@ -3549,7 +3549,7 @@ Design Studio:   batch       AI themes      templates       embed</code></pre>
                       release for the audience.
                       </li>
                       <li>
-                        Current subagents names presume using Claude.
+                        Current subagents names presume using Cursor Agent.
                       </li>
                     </ul>
                     </p>
@@ -3981,7 +3981,7 @@ If you need "and" to describe what it does, it's probably multiple topics
                   <li>
                     One topic per spec, enforced by the "one sentence without 'and'" test
                   </li>
-                  <li>Current subagent names presume using Claude</li>
+                  <li>Current subagent names presume using Cursor Agent</li>
                 </ul>
 
                 <p>

@@ -12,21 +12,25 @@ if [ "$1" = "plan" ]; then
     # Plan mode
     MODE="plan"
     PROMPT_FILE="PROMPT_plan.md"
+    MODEL="gemini-3.1-pro"
     MAX_ITERATIONS=${2:-0}
 elif [ "$1" = "build" ]; then
     # Explicit build mode (with optional max iterations)
     MODE="build"
     PROMPT_FILE="PROMPT_build.md"
+    MODEL="auto"
     MAX_ITERATIONS=${2:-0}
 elif [[ "$1" =~ ^[0-9]+$ ]]; then
     # Build mode with max iterations (bare number)
     MODE="build"
     PROMPT_FILE="PROMPT_build.md"
+    MODEL="auto"
     MAX_ITERATIONS=$1
 else
     # Build mode, unlimited (no arguments or invalid input)
     MODE="build"
     PROMPT_FILE="PROMPT_build.md"
+    MODEL="auto"
     MAX_ITERATIONS=0
 fi
 
@@ -53,17 +57,15 @@ while true; do
     fi
 
     # Run Ralph iteration with selected prompt
-    # -p: Headless mode (non-interactive, reads from stdin)
-    # --dangerously-skip-permissions: Auto-approve all tool calls (YOLO mode)
-    # --output-format=stream-json: Structured output for logging/monitoring
-    # --model opus: Primary agent uses Opus for complex reasoning (task selection, prioritization)
-    #               Can use 'sonnet' in build mode for speed if plan is clear and tasks well-defined
-    # --verbose: Detailed execution logging
-    cat "$PROMPT_FILE" | claude -p \
-        --dangerously-skip-permissions \
-        --output-format=stream-json \
-        --model opus \
-        --verbose
+    # --print: Headless mode (non-interactive, reads from stdin)
+    # --yolo: Auto-approve all tool calls (YOLO mode)
+    # --output-format stream-json: Structured output for logging/monitoring
+    # --model $MODEL: Uses gemini-3.1-pro for planning, auto for building
+    cursor-agent --print \
+        --yolo \
+        --output-format stream-json \
+        --model "$MODEL" \
+        "$(cat "$PROMPT_FILE")"
 
     # Push changes after each iteration
     git push origin "$CURRENT_BRANCH" || {

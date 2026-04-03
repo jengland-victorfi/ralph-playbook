@@ -174,7 +174,7 @@ Ralph's effectiveness comes from how much you trust it do the right thing (event
   - Applies to implementation plan, task definition and prioritization
   - Eventual consistency achieved through iteration
 - _Use protection_
-  - To operate autonomously, Ralph requires `--dangerously-skip-permissions` - asking for approval on every tool call would break the loop. This bypasses Claude's permission system entirely - so a sandbox becomes your only security boundary.
+  - To operate autonomously, Ralph requires `--yolo` - asking for approval on every tool call would break the loop. This bypasses Cursor Agent's permission system entirely - so a sandbox becomes your only security boundary.
   - Philosophy: "It's not if it gets popped, it's when. And what is the blast radius?"
   - Running without a sandbox exposes credentials, browser cookies, SSH keys, and access tokens on your machine
   - Run in isolated environments with minimum viable access:
@@ -228,7 +228,7 @@ And remember, _the plan is disposable:_
 Geoff's initial minimal form of `loop.sh` script:
 
 ```bash
-while :; do cat PROMPT.md | claude ; done
+while :; do cursor-agent --print --yolo "$(cat PROMPT.md)" ; done
 ```
 
 _Note:_ The same approach can be used with other CLIs; e.g. `amp`, `codex`, `opencode`, etc.
@@ -237,7 +237,7 @@ _What controls task continuation?_
 
 The continuation mechanism is elegantly simple:
 
-1. _Bash loop runs_ → feeds `PROMPT.md` to claude
+1. _Bash loop runs_ → feeds `PROMPT.md` to cursor-agent
 2. _PROMPT.md instructs_ → "Study IMPLEMENTATION_PLAN.md and choose the most important thing..."
 3. _Agent completes one task_ → updates IMPLEMENTATION_PLAN.md on disk, commits, exits
 4. _Bash loop restarts immediately_ → fresh context window
@@ -326,17 +326,15 @@ while true; do
     fi
 
     # Run Ralph iteration with selected prompt
-    # -p: Headless mode (non-interactive, reads from stdin)
-    # --dangerously-skip-permissions: Auto-approve all tool calls (YOLO mode)
-    # --output-format=stream-json: Structured output for logging/monitoring
-    # --model opus: Primary agent uses Opus for complex reasoning (task selection, prioritization)
-    #               Can use 'sonnet' in build mode for speed if plan is clear and tasks well-defined
-    # --verbose: Detailed execution logging
-    cat "$PROMPT_FILE" | claude -p \
-        --dangerously-skip-permissions \
-        --output-format=stream-json \
-        --model opus \
-        --verbose
+    # --print: Headless mode (non-interactive, reads from stdin)
+    # --yolo: Auto-approve all tool calls (YOLO mode)
+    # --output-format stream-json: Structured output for logging/monitoring
+    # --model $MODEL: Uses gemini-3.1-pro for planning, auto for building
+    cursor-agent --print \
+        --yolo \
+        --output-format stream-json \
+        --model "$MODEL" \
+        "$(cat "$PROMPT_FILE")"
 
     # Push changes after each iteration
     git push origin "$CURRENT_BRANCH" || {
@@ -361,17 +359,16 @@ _Max-iterations:_
 - `./loop.sh` runs unlimited (manual stop with Ctrl+C)
 - `./loop.sh 20` runs max 20 iterations then stops
 
-_Claude CLI flags:_
+_Cursor Agent CLI flags:_
 
-- `-p` (headless mode): Enables non-interactive operation, reads prompt from stdin
-- `--dangerously-skip-permissions`: Bypasses all permission prompts for fully automated runs
-- `--output-format=stream-json`: Outputs structured JSON for logging/monitoring/visualization
-- `--model opus`: Primary agent uses Opus for task selection, prioritization, and coordination (can use `sonnet` for speed if tasks are clear)
-- `--verbose`: Provides detailed execution logging
+- `--print` (headless mode): Enables non-interactive operation, prints output and exits
+- `--yolo`: Bypasses all permission prompts for fully automated runs (alias for `--force`)
+- `--output-format stream-json`: Outputs structured JSON for logging/monitoring/visualization
+- `--model <model>`: Uses `gemini-3.1-pro` for planning tasks, and `auto` for building/implementation tasks.
 
 ### Streamed Output Variant
 
-An alternative `loop_streamed.sh` that pipes Claude's raw JSON output through `parse_stream.js` for readable, color-coded terminal display showing tool calls, results, and execution stats.
+An alternative `loop_streamed.sh` that pipes Cursor Agent's raw JSON output through `parse_stream.js` for readable, color-coded terminal display showing tool calls, results, and execution stats.
 
 _Differences from base `loop.sh`:_
 
@@ -421,7 +418,7 @@ _Setup:_ Make the script executable before first use:
 chmod +x loop.sh
 ```
 
-_Core function:_ Continuously feeds prompt file to Claude, manages iteration limits, and pushes changes after each task completion.
+_Core function:_ Continuously feeds prompt file to Cursor Agent, manages iteration limits, and pushes changes after each task completion.
 
 ### PROMPTS
 
@@ -452,7 +449,7 @@ _Key Language Patterns_ (Geoff's specific phrasing):
 _Notes:_
 
 - Update [project-specific goal] placeholder below.
-- Current subagents names presume using Claude.
+- Current subagents names presume using Cursor Agent (Sonnet 4 Thinking / Opus).
 
 ```
 0a. Study `specs/*` with up to 250 parallel Sonnet subagents to learn the application specifications.
@@ -469,7 +466,7 @@ ULTIMATE GOAL: We want to achieve [project-specific goal]. Consider missing elem
 
 #### `PROMPT_build.md` Template
 
-_Note:_ Current subagents names presume using Claude.
+_Note:_ Current subagents names presume using Cursor Agent (Sonnet 4 Thinking / Opus).
 
 ```
 0a. Study `specs/*` with up to 500 parallel Sonnet subagents to learn the application specifications.
@@ -577,7 +574,7 @@ Referenced in `PROMPT.md` templates for orientation steps.
 
 I'm still determining the value/viability of these, but the opportunities sound promising:
 
-- [Claude's AskUserQuestionTool for Planning](#use-claudes-askuserquestiontool-for-planning) - use Claude's built-in interview tool to systematically clarify JTBD, edge cases, and acceptance criteria for specs.
+- [Cursor Agent's AskUserQuestionTool for Planning](#use-cursor-agents-askuserquestiontool-for-planning) - use Cursor Agent's built-in interview tool to systematically clarify JTBD, edge cases, and acceptance criteria for specs.
 - [Acceptance-Driven Backpressure](#acceptance-driven-backpressure) - Derive test requirements during planning from acceptance criteria. Prevents "cheating" - can't claim done without appropriate tests passing.
 - [Non-Deterministic Backpressure](#non-deterministic-backpressure) - Using LLM-as-judge for tests against subjective tasks (tone, aesthetics, UX). Binary pass/fail reviews that iterate until pass.
 - [Ralph-Friendly Work Branches](#ralph-friendly-work-branches) - Asking Ralph to "filter to feature X" at runtime is unreliable. Instead, create scoped plan per branch upfront.
@@ -587,25 +584,25 @@ I'm still determining the value/viability of these, but the opportunities sound 
 
 ---
 
-### Use Claude's AskUserQuestionTool for Planning
+### Use Cursor Agent's AskUserQuestionTool for Planning
 
-During Phase 1 (Define Requirements), use Claude's built-in `AskUserQuestionTool` to systematically explore JTBD, topics of concern, edge cases, and acceptance criteria through structured interview before writing specs.
+During Phase 1 (Define Requirements), use Cursor Agent's built-in `AskUserQuestionTool` to systematically explore JTBD, topics of concern, edge cases, and acceptance criteria through structured interview before writing specs.
 
 _When to use:_ Minimal/vague initial requirements, need to clarify constraints, or multiple valid approaches exist.
 
 _Invoke:_ "Interview me using AskUserQuestion to understand [JTBD/topic/acceptance criteria/...]"
 
-Claude will ask targeted questions to clarify requirements and ensure alignment before producing `specs/*.md` files.
+Cursor Agent will ask targeted questions to clarify requirements and ensure alignment before producing `specs/*.md` files.
 
 _Flow:_
 
 1. Start with known information →
-2. _Claude interviews via AskUserQuestion_ →
+2. _Cursor Agent interviews via AskUserQuestion_ →
 3. Iterate until clear →
-4. Claude writes specs with acceptance criteria →
+4. Cursor Agent writes specs with acceptance criteria →
 5. Proceed to planning/building
 
-No code or prompt changes needed - this simply enhances Phase 1 using existing Claude Code capabilities.
+No code or prompt changes needed - this simply enhances Phase 1 using existing Cursor Agent capabilities.
 
 _Inspiration_ - [Thariq's X post](https://x.com/trq212/status/2005315275026260309):
 
@@ -939,16 +936,17 @@ set -euo pipefail
 #   ./loop.sh plan-work "user auth"         # Scoped planning
 
 # Parse arguments
-MODE="build"
-PROMPT_FILE="PROMPT_build.md"
-
 if [ "$1" = "plan" ]; then
-    # Full planning mode
+    # Plan mode
     MODE="plan"
     PROMPT_FILE="PROMPT_plan.md"
+    MODEL="gemini-3.1-pro"
     MAX_ITERATIONS=${2:-0}
 elif [ "$1" = "build" ]; then
     # Explicit build mode (with optional max iterations)
+    MODE="build"
+    PROMPT_FILE="PROMPT_build.md"
+    MODEL="auto"
     MAX_ITERATIONS=${2:-0}
 elif [ "$1" = "plan-work" ]; then
     # Scoped planning mode
@@ -960,12 +958,19 @@ elif [ "$1" = "plan-work" ]; then
     MODE="plan-work"
     WORK_DESCRIPTION="$2"
     PROMPT_FILE="PROMPT_plan_work.md"
+    MODEL="gemini-3.1-pro"
     MAX_ITERATIONS=${3:-5}  # Default 5 for work planning
 elif [[ "$1" =~ ^[0-9]+$ ]]; then
     # Build mode with max iterations (bare number)
+    MODE="build"
+    PROMPT_FILE="PROMPT_build.md"
+    MODEL="auto"
     MAX_ITERATIONS=$1
 else
     # Build mode, unlimited
+    MODE="build"
+    PROMPT_FILE="PROMPT_build.md"
+    MODEL="auto"
     MAX_ITERATIONS=0
 fi
 
@@ -1042,17 +1047,17 @@ while true; do
 
     # For plan-work mode, substitute ${WORK_SCOPE} in prompt before piping
     if [ "$MODE" = "plan-work" ]; then
-        envsubst < "$PROMPT_FILE" | claude -p \
-            --dangerously-skip-permissions \
-            --output-format=stream-json \
-            --model opus \
-            --verbose
+        cursor-agent --print \
+            --yolo \
+            --output-format stream-json \
+            --model "$MODEL" \
+            "$(envsubst < "$PROMPT_FILE")"
     else
-        cat "$PROMPT_FILE" | claude -p \
-            --dangerously-skip-permissions \
-            --output-format=stream-json \
-            --model opus \
-            --verbose
+        cursor-agent --print \
+            --yolo \
+            --output-format stream-json \
+            --model "$MODEL" \
+            "$(cat "$PROMPT_FILE")"
     fi
 
     # Push to current branch
@@ -1238,7 +1243,7 @@ Variant of `PROMPT_plan.md` that adds audience context and SLC-oriented slice re
 _Notes:_
 
 - Unlike the default template, this does not have a `[project-specific goal]` placeholder — the goal is implicit: recommend the most valuable next release for the audience.
-- Current subagents names presume using Claude.
+- Current subagents names presume using Cursor Agent (Sonnet 4 Thinking / Opus).
 
 ```
 0a. Study @AUDIENCE_JTBD.md to understand who we're building for and their Jobs to Be Done.
@@ -1417,7 +1422,7 @@ _Notes:_
 - Documents actual code behavior (bugs included) — not intended behavior
 - Two-phase process: Phase 1 investigates with full code access, Phase 2 writes specs with zero implementation details
 - One topic per spec, enforced by the "one sentence without 'and'" test
-- Current subagent names presume using Claude
+- Current subagent names presume using Cursor Agent (Sonnet 4 Thinking / Opus)
 
 _Files:_ [`PROMPT_reverse_engineer_specs.md`](files/PROMPT_reverse_engineer_specs.md)
 

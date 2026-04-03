@@ -2,7 +2,7 @@
 
 # Sandbox Environments for AI Agent Workflows
 
-_Security model:_ The sandbox (Docker/E2B) provides the security boundary. Inside the sandbox, Claude runs with full permissions because the container itself is isolated.
+_Security model:_ The sandbox (Docker/E2B) provides the security boundary. Inside the sandbox, Cursor Agent runs with full permissions because the container itself is isolated.
 
 _Security philosophy:_
 
@@ -23,10 +23,10 @@ Run on dedicated VMs or local Docker sandboxes. Restrict network connectivity, p
 - Unique HTTPS URL per Sprite for webhooks, APIs, public access
 - Layer 3 network policies for egress control (whitelist domains or use default LLM-friendly list)
 - CLI, REST API, JavaScript SDK, Go SDK (Python and Elixir coming soon)
-- Pre-installed tools: Claude Code, Codex CLI, Gemini CLI, Python 3.13, Node.js 22.20
+- Pre-installed tools: Cursor Agent Code, Codex CLI, Gemini CLI, Python 3.13, Node.js 22.20
 - $30 free credits to start (~500 Sprites worth)
 
-_Philosophy:_ Fly.io argues that "ephemeral sandboxes are obsolete" and that AI agents need persistent computers, not disposable containers. Sprites treat sandboxes as "actual computers" where data, packages, and services persist across executions on ext4 NVMe storage—no need to rebuild environments repeatedly. As they put it: "Claude doesn't want a stateless container."
+_Philosophy:_ Fly.io argues that "ephemeral sandboxes are obsolete" and that AI agents need persistent computers, not disposable containers. Sprites treat sandboxes as "actual computers" where data, packages, and services persist across executions on ext4 NVMe storage—no need to rebuild environments repeatedly. As they put it: "Cursor Agent doesn't want a stateless container."
 
 _Unique Features:_
 
@@ -34,7 +34,7 @@ _Unique Features:_
 - _Transactional snapshots_: Copy-on-write checkpoints capture entire disk state; stores last 5 checkpoints
 - _Idle cost optimization_: Auto-sleep when inactive (30s timeout), resume on request (<1s wake)
 - _Cold start_: Creation in 1-2 seconds, restore under 1 second
-- _Claude integration_: Pre-installed skills teach Claude how to use Sprites (port forwarding, etc.)
+- _Cursor Agent integration_: Pre-installed skills teach Cursor Agent how to use Sprites (port forwarding, etc.)
 - _Storage billing_: Pay only for blocks written, not allocated space; TRIM-friendly
 - _No time limits_: Unlike ephemeral sandboxes (typically 15-minute limits), Sprites support long-running workloads
 
@@ -85,7 +85,7 @@ _Links:_
 ### E2B
 
 - Purpose-built for AI agents and LLM workflows
-- Pre-built template `anthropic-claude-code` ships with Claude Code CLI ready
+- Pre-built template `anthropic-cursor-agent-code` ships with Cursor Agent Code CLI ready
 - Single-line SDK calls in Python or JavaScript (v1.5.1+)
 - Full filesystem + git for progress.txt, prd.json, and repo operations
 - 24-hour session limits on Pro plan (1 hour on Hobby)
@@ -97,7 +97,7 @@ _Philosophy:_ E2B believes AI agents need transient, immutable workloads with ha
 _Unique Features:_
 
 - _Fastest cold start_: ~150-200ms via Firecracker microVMs
-- _Pre-built Claude template_: Zero-setup Claude Code integration
+- _Pre-built Cursor Agent template_: Zero-setup Cursor Agent Code integration
 - _Docker MCP Partnership_: Native access to 200+ MCP tools from Docker's catalog
 - _Pause/Resume (Beta)_: Save full VM state including memory (~4s per 1GB to pause, ~1s to resume, state persists up to 30 days)
 - _Network controls_: `allowInternetAccess` toggle, `network.allowOut`/`network.denyOut` for granular CIDR/domain filtering
@@ -127,7 +127,7 @@ _Specs:_
 | Timeout       | 1 hour (Hobby), 24 hours (Pro)         |
 | Compute       | 1-8 vCPU, 512MB-8GB RAM (configurable) |
 | Filesystem    | Full Linux with git support            |
-| Pre-installed | Node.js, curl, ripgrep, Claude Code    |
+| Pre-installed | Node.js, curl, ripgrep, Cursor Agent Code    |
 
 _Limitations:_
 
@@ -143,9 +143,9 @@ _Links:_
 - Official: https://e2b.dev/
 - Documentation: https://e2b.dev/docs
 - Pricing: https://e2b.dev/pricing
-- Python Guide: https://e2b.dev/blog/python-guide-run-claude-code-in-an-e2b-sandbox
-- JavaScript Guide: https://e2b.dev/blog/javascript-guide-run-claude-code-in-an-e2b-sandbox
-- Claude Code Template: https://e2b.dev/docs/code-interpreter/claude-code
+- Python Guide: https://e2b.dev/blog/python-guide-run-cursor-agent-code-in-an-e2b-sandbox
+- JavaScript Guide: https://e2b.dev/blog/javascript-guide-run-cursor-agent-code-in-an-e2b-sandbox
+- Cursor Agent Code Template: https://e2b.dev/docs/code-interpreter/cursor-agent-code
 - MCP Server: https://github.com/e2b-dev/mcp-server
 - GitHub: https://github.com/e2b-dev/E2B
 
@@ -400,7 +400,7 @@ _Links:_
 | Isolation        | Firecracker microVM | Firecracker microVM | gVisor container     | Container          | Full VM (KVM)         |
 | Cold Start       | <1 second           | ~150ms              | 2-5s (or <3s w/snap) | 1-5 seconds        | ~2 seconds            |
 | Max Timeout      | None (persistent)   | 24 hours (Pro)      | 24 hours             | Configurable       | None (persistent)     |
-| Claude CLI       | Pre-installed       | Prebuilt template   | Manual               | Manual             | Via Shelley agent     |
+| Cursor Agent CLI       | Pre-installed       | Prebuilt template   | Manual               | Manual             | Via Shelley agent     |
 | Git Support      | Yes                 | Yes                 | Yes                  | Yes                | Yes                   |
 | Persistent Files | Yes (permanent)     | 24 hours            | Via Volumes          | Via R2 FUSE mount  | Yes (permanent)       |
 | Checkpoints      | Yes (~300ms)        | Pause/Resume (Beta) | Memory Snapshots     | No                 | No                    |
@@ -424,7 +424,7 @@ _Key Features:_
 - Sub-90ms sandbox creation (container-based, faster than E2B's ~150ms microVM)
 - Python SDK (`daytona_sdk` on PyPI) and TypeScript SDK
 - Official LangChain integration (`langchain-daytona-data-analysis`)
-- MCP Server support for Claude/Anthropic integrations
+- MCP Server support for Cursor Agent/Anthropic integrations
 - OCI/Docker image compatibility
 - Built-in Git and LSP support
 - GPU support for ML workloads (enterprise tier)
@@ -437,7 +437,7 @@ _Unique Features:_
 
 - _Fastest cold start_: ~90ms (container-based, faster than E2B's microVM)
 - _LangChain integration_: Official `langchain-daytona-data-analysis` package
-- _MCP Server_: Native Claude/Anthropic integration support
+- _MCP Server_: Native Cursor Agent/Anthropic integration support
 - _Virtual desktops_: Linux, Windows, macOS with programmatic control
 - _Unlimited persistence_: Sandboxes can live forever via object storage archiving
 
@@ -495,7 +495,7 @@ _Links:_
 - Network Limits: https://www.daytona.io/docs/en/network-limits/
 - Sandbox Management: https://www.daytona.io/docs/en/sandbox-management/
 - LangChain Integration: https://docs.langchain.com/oss/python/integrations/tools/daytona_data_analysis
-- MCP Servers Guide: https://www.daytona.io/dotfiles/production-ready-mcp-servers-at-scale-with-claude-daytona
+- MCP Servers Guide: https://www.daytona.io/dotfiles/production-ready-mcp-servers-at-scale-with-cursor-agent-daytona
 
 ---
 
@@ -682,21 +682,21 @@ _Links:_
 _Quick Start:_
 
 ```bash
-docker sandbox run claude                  # Basic
-docker sandbox run -w ~/my-project claude  # Custom workspace
-docker sandbox run claude "your task"      # With prompt
-docker sandbox run claude -c               # Continue last session
+docker sandbox run cursor-agent                  # Basic
+docker sandbox run -w ~/my-project cursor-agent  # Custom workspace
+docker sandbox run cursor-agent "your task"      # With prompt
+docker sandbox run cursor-agent -c               # Continue last session
 ```
 
 _Key Details:_
 
-- Credentials stored in persistent volume `docker-claude-sandbox-data`
+- Credentials stored in persistent volume `docker-cursor-agent-sandbox-data`
 - `--dangerously-skip-permissions` enabled by default
 - Base image includes: Node.js, Python 3, Go, Git, Docker CLI, GitHub CLI, ripgrep, jq
 - Container persists in background; re-running reuses same container
 - Non-root user with sudo access
 
-_Links:_ https://docs.docker.com/ai/sandboxes/claude-code/
+_Links:_ https://docs.docker.com/ai/sandboxes/cursor-agent-code/
 
 ---
 
@@ -719,7 +719,7 @@ _Links:_ https://docs.docker.com/ai/sandboxes/claude-code/
 
 ### For Production/Multi-tenant: Use E2B
 
-1. Pre-built Claude Code template = zero setup friction
+1. Pre-built Cursor Agent Code template = zero setup friction
 2. 24-hour sessions handle long-running autonomous agents
 3. Full filesystem for progress.txt, prd.json, git repos
 4. Proven in production (Lovable, Quora use it)
@@ -731,13 +731,13 @@ _Links:_ https://docs.docker.com/ai/sandboxes/claude-code/
 1. No session time limits (persistent environments)
 2. Transactional snapshots for version control of entire OS
 3. Auto-sleep when idle reduces costs
-4. Pre-installed Claude Code and AI CLI tools
+4. Pre-installed Cursor Agent Code and AI CLI tools
 5. Best for agents that need to maintain state across days/weeks
 
 ### For Local Development: Use Docker Sandboxes
 
-1. _Quick prototyping_: `docker sandbox run claude`
-2. _With git automation_: `claude-sandbox` (TextCortex)
+1. _Quick prototyping_: `docker sandbox run cursor-agent`
+2. _With git automation_: `cursor-agent-sandbox` (TextCortex)
 3. _Minimal setup_: Uses persistent credentials volume
 4. Free - runs on your own hardware
 5. Unlimited session duration
