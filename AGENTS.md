@@ -17,7 +17,7 @@ Run these after implementing to get immediate feedback:
 
 Succinct learnings about how to RUN the project:
 
-- `./loop.sh` / `./loop.sh plan` — Cursor Agent with `--sandbox enabled` (and optional `--yolo`); build mode pipes through `parse_stream.ts` if using root `loop.sh`
+- `./loop.sh` / `./loop.sh plan` / `./loop.sh specs` — Cursor Agent with `--sandbox enabled` (and optional `--yolo`); build mode pipes through `parse_stream.ts` if using root `loop.sh`. Specs mode uses `PROMPT_specs.md` and `gemini-3.1-pro` (same as plan).
 - `./loop_streamed.sh` — same modes; streams via `files/parse_stream.js` and Node
 
 ### Codebase Patterns

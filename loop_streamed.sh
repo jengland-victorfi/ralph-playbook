@@ -1,12 +1,14 @@
 #!/bin/bash
 set -o pipefail
-# Usage: ./loop_streamed.sh [plan|build] [max_iterations]
+# Usage: ./loop_streamed.sh [plan|build|specs] [max_iterations]
 # Examples:
 #   ./loop_streamed.sh              # Build mode, unlimited iterations
 #   ./loop_streamed.sh 20           # Build mode, max 20 iterations
 #   ./loop_streamed.sh build 20     # Build mode, max 20 iterations
 #   ./loop_streamed.sh plan         # Plan mode, unlimited iterations
 #   ./loop_streamed.sh plan 5       # Plan mode, max 5 iterations
+#   ./loop_streamed.sh specs        # Specs mode, unlimited iterations
+#   ./loop_streamed.sh specs 3      # Specs mode, max 3 iterations
 
 # Parse arguments
 YOLO_FLAG=""
@@ -31,6 +33,11 @@ elif [ "$1" = "build" ]; then
     MODE="build"
     PROMPT_FILE="PROMPT_build.md"
     MODEL="auto"
+    MAX_ITERATIONS=${2:-0}
+elif [ "$1" = "specs" ]; then
+    MODE="specs"
+    PROMPT_FILE="PROMPT_specs.md"
+    MODEL="gemini-3.1-pro"
     MAX_ITERATIONS=${2:-0}
 elif [[ "$1" =~ ^[0-9]+$ ]]; then
     # Build mode with max iterations (bare number)

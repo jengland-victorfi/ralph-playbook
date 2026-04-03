@@ -1,13 +1,15 @@
 #!/bin/bash
 set -eo pipefail
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-# Usage: ./loop.sh [plan|build] [max_iterations]
+# Usage: ./loop.sh [plan|build|specs] [max_iterations]
 # Examples:
 #   ./loop.sh              # Build mode, unlimited iterations
 #   ./loop.sh 20           # Build mode, max 20 iterations
 #   ./loop.sh build 20     # Build mode, max 20 iterations
 #   ./loop.sh plan         # Plan mode, unlimited iterations
 #   ./loop.sh plan 5       # Plan mode, max 5 iterations
+#   ./loop.sh specs        # Specs mode, unlimited iterations
+#   ./loop.sh specs 3      # Specs mode, max 3 iterations
 
 # Parse arguments
 YOLO_FLAG=""
@@ -32,6 +34,11 @@ elif [ "$1" = "build" ]; then
     MODE="build"
     PROMPT_FILE="PROMPT_build.md"
     MODEL="auto"
+    MAX_ITERATIONS=${2:-0}
+elif [ "$1" = "specs" ]; then
+    MODE="specs"
+    PROMPT_FILE="PROMPT_specs.md"
+    MODEL="gemini-3.1-pro"
     MAX_ITERATIONS=${2:-0}
 elif [[ "$1" =~ ^[0-9]+$ ]]; then
     # Build mode with max iterations (bare number)
