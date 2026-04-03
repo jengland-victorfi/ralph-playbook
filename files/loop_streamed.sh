@@ -83,11 +83,7 @@ Execute the instructions above."
     echo ""
     echo "✅ Cursor Agent iteration complete"
 
-    # Push changes after each iteration
-    git push origin "$CURRENT_BRANCH" || {
-        echo "Failed to push. Creating remote branch..."
-        git push -u origin "$CURRENT_BRANCH"
-    }
+    # Changes are committed locally by the agent
 
     ITERATION=$((ITERATION + 1))
     echo -e "\n\n======================== LOOP $ITERATION ========================\n"

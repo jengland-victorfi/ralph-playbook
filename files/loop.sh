@@ -67,11 +67,7 @@ while true; do
         --model "$MODEL" \
         "$(cat "$PROMPT_FILE")"
 
-    # Push changes after each iteration
-    git push origin "$CURRENT_BRANCH" || {
-        echo "Failed to push. Creating remote branch..."
-        git push -u origin "$CURRENT_BRANCH"
-    }
+    # Changes are committed locally by the agent
 
     ITERATION=$((ITERATION + 1))
     echo -e "\n\n======================== LOOP $ITERATION ========================\n"
