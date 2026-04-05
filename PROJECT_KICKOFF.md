@@ -2,7 +2,7 @@
 
 Welcome to your new Ralph-powered project! To get started with the Ralph workflow, you need to complete **Phase 1: Define Requirements**. 
 
-Fill out this questionnaire and feed it to Cursor Agent (or Claude/ChatGPT) to automatically generate your `AUDIENCE_JTBD.md` and initial `specs/*.md` files.
+Fill out this questionnaire and feed it to Cursor Agent (or ChatGPT) to automatically generate your `AUDIENCE_JTBD.md` and initial `specs/*.md` files.
 
 ## 1. The Vision
 **What are we building?** (Provide a 1-2 sentence elevator pitch)
