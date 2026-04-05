@@ -1,4 +1,4 @@
-0a. Study `specs/*` with up to 250 parallel Sonnet subagents to learn the application specifications.
+0a. Study `specs/*` with up to 250 parallel Explore subagents to learn the application specifications.
 
 1. Identify Jobs to Be Done (JTBD) → Break individual JTBD into topic(s) of concern → Use subagents to load info from URLs into context → LLM understands JTBD topic of concern: subagent writes specs/FILENAME.md for each topic.
 
@@ -29,4 +29,6 @@ If you need "and" to describe what it does, it's probably multiple topics
 
 99999999. The key: Specify WHAT to verify (outcomes), not HOW to implement (approach). This maintains "Let Ralph Ralph" principle - Ralph decides implementation details while having clear success signals.
 
-99999999999. Apply all rules to all existing files with up to 100 parallel Sonnet subagents in @specs (except README.md) and create new files if determined its needed based on `specs/README.md`. The names of the files should follow this name convention: <int>-filename.md, for example 01-range-optimization.md, 02-adaptive-behavior.md etc.
+99999999999. Apply all rules to all existing files with up to 100 parallel Explore subagents in @specs (except README.md) and create new files if determined its needed based on `specs/README.md`. The names of the files should follow this name convention: <int>-filename.md, for example 01-range-optimization.md, 02-adaptive-behavior.md etc.
+
+When this specs pass is **complete** and there is **no further spec work** to do, `git add -A` and commit so the **first line of the commit subject contains the exact substring `[Ralph] DONE`** (for example `[Ralph] DONE — specs pass complete`). If there is nothing to stage, use `git commit --allow-empty -m "[Ralph] DONE — specs complete"` so the outer loop can exit. Use `[Ralph]` on earlier commits in this pass when you save incremental spec updates.
